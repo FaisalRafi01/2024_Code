@@ -1,6 +1,6 @@
-from collections import deque
+import heapq
 
-#Cari 0
+# Cari 0
 def find_blank(board):
     for i in range(3):
         for j in range(3):
@@ -29,27 +29,30 @@ def get_neighbors(board):
             neighbors.append(new_board)
 
     return neighbors
+
 def is_goal(board, goal):
     return board == goal
 
-def bfs_solve(start, goal):
-    queue = deque([(start, [])]) 
+def UcS(start, goal):
+    queue = [(0, start, [])]  # (biaya, papan saat ini, Path)
     visited = set()  
-    visited.add(tuple(map(tuple, start))) 
+    visited.add(tuple(map(tuple, start)))
 
     while queue:
-        current_board, path = queue.popleft()
+        cost, current_board, path = heapq.heappop(queue)
+
         if is_goal(current_board, goal):
             return path
 
-        # Semua Kemingkunan Gerakan
+        # Semua kemungkinan gerakan
         for neighbor in get_neighbors(current_board):
             neighbor_tuple = tuple(map(tuple, neighbor))
             if neighbor_tuple not in visited:
                 visited.add(neighbor_tuple)
-                queue.append((neighbor, path + [neighbor])) 
+                heapq.heappush(queue, (cost + 1, neighbor, path + [neighbor]))  # +1 Cost not visited
 
-    return None  
+    return None
+
 def print_board(board):
     for row in board:
         print(row)
@@ -73,7 +76,7 @@ if __name__ == "__main__":
     print("Goal Board:")
     print_board(goal_board)
 
-    solution_path = bfs_solve(start_board, goal_board)
+    solution_path = UcS(start_board, goal_board)
 
     if solution_path:
         print("Solusi ditemukan dalam", len(solution_path), "langkah.")
