@@ -1,26 +1,26 @@
 import heapq
 
-# Cari posisi 0
+# Cari 0
 def find_blank(board):
     for i in range(3):
         for j in range(3):
             if board[i][j] == 0:
                 return (i, j)
 
-# Tukar posisi dua elemen pada papan
+# Tuker
 def swap(board, pos1, pos2):
-    new_board = [row[:] for row in board]  # Salin papan
+    new_board = [row[:] for row in board]  # Buat salinan papan
     x1, y1 = pos1
     x2, y2 = pos2
     new_board[x1][y1], new_board[x2][y2] = new_board[x2][y2], new_board[x1][y1]
     return new_board
 
-# Mendapatkan tetangga yang valid setelah gerakan
+# Cek Valid + gerak
 def get_neighbors(board):
     neighbors = []
     blank_pos = find_blank(board)
     x, y = blank_pos
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     for dx, dy in directions:
         new_x, new_y = x + dx, y + dy
@@ -30,14 +30,12 @@ def get_neighbors(board):
 
     return neighbors
 
-# Mengecek apakah papan saat ini adalah tujuan
 def is_goal(board, goal):
     return board == goal
 
-# Algoritma UCS untuk menyelesaikan 8-puzzle
-def ucs_solve(start, goal):
-    queue = [(0, start, [])]  # (biaya, papan saat ini, jalur)
-    visited = set()
+def UcS(start, goal):
+    queue = [(0, start, [])]  # (biaya, papan saat ini, Path)
+    visited = set()  
     visited.add(tuple(map(tuple, start)))
 
     while queue:
@@ -46,28 +44,26 @@ def ucs_solve(start, goal):
         if is_goal(current_board, goal):
             return path
 
-        # Ekspansi semua kemungkinan gerakan
+        # Semua kemungkinan gerakan
         for neighbor in get_neighbors(current_board):
             neighbor_tuple = tuple(map(tuple, neighbor))
             if neighbor_tuple not in visited:
                 visited.add(neighbor_tuple)
-                heapq.heappush(queue, (cost + 1, neighbor, path + [neighbor]))
+                heapq.heappush(queue, (cost + 1, neighbor, path + [neighbor]))  # +1 Cost not visited
 
     return None
 
-# Fungsi untuk mencetak papan
 def print_board(board):
     for row in board:
         print(row)
     print()
 
-# Fungsi input papan awal dan tujuan
-def input_board(board_type): 
+def input_board(board_type):
     print(f"Masukkan {board_type} state (9 angka, 0 untuk ruang kosong):")
     board = []
-    numbers = list(map(int, input().split()))
+    numbers = list(map(int, input().split()))  
     for i in range(0, 9, 3):
-        board.append(numbers[i:i + 3])
+        board.append(numbers[i:i+3])
     return board
 
 if __name__ == "__main__":
@@ -80,12 +76,11 @@ if __name__ == "__main__":
     print("Goal Board:")
     print_board(goal_board)
 
-    solution_path = ucs_solve(start_board, goal_board)
+    solution_path = UcS(start_board, goal_board)
 
     if solution_path:
         print("Solusi ditemukan dalam", len(solution_path), "langkah.")
         for step in solution_path:
             print_board(step)
     else:
-        print("Error, Invalid State,Tidak ada solusi.")
- 
+        print("Tidak ada solusi.")
